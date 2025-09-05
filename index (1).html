@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TDS Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      color: #333;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 30px;
+      width: 420px;
+      max-width: 90%;
+    }
+    .card h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #3498db;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .results {
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f9fafc;
+      border: 1px solid #e0e6ed;
+    }
+    .results h3 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #2c3e50;
+    }
+    .results p {
+      margin: 6px 0;
+      font-size: 0.95rem;
+    }
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .matched { color: green; }
+    .short { color: red; }
+    .excess { color: orange; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>TDS Calculator</h2>
+    <label for="baseFees">Base Fees (₹)</label>
+    <input type="number" id="baseFees" placeholder="Enter base fees">
+
+    <label for="gstRate">GST Rate (%)</label>
+    <input type="number" id="gstRate" placeholder="Enter GST rate">
+
+    <label for="tdsRate">TDS Rate (%)</label>
+    <input type="number" id="tdsRate" placeholder="Enter TDS rate">
+
+    <label for="amountReceived">Amount Received (Optional)</label>
+    <input type="number" id="amountReceived" placeholder="Enter amount received">
+
+    <button type="button" onclick="calculateTDS()">Calculate</button>
+
+    <div id="results" class="results" style="display:none;"></div>
+  </div>
+
+  <script>
+    function calculateTDS() {
+      const baseFees = parseFloat(document.getElementById("baseFees").value) || 0;
+      const gstRate = parseFloat(document.getElementById("gstRate").value) || 0;
+      const tdsRate = parseFloat(document.getElementById("tdsRate").value) || 0;
+      const amountReceived = parseFloat(document.getElementById("amountReceived").value);
+
+      // Calculations
+      const gstAmount = (baseFees * gstRate) / 100;
+      const totalInvoice = baseFees + gstAmount;
+      const tdsDeducted = (baseFees * tdsRate) / 100;
+      const netPayable = totalInvoice - tdsDeducted;
+
+      // Build results
+      let html = `
+        <h3>Results</h3>
+        <p><strong>Base Fees:</strong> ₹${baseFees.toFixed(2)}</p>
+        <p><strong>GST Amount:</strong> ₹${gstAmount.toFixed(2)}</p>
+        <p><strong>Total Invoice:</strong> ₹${totalInvoice.toFixed(2)}</p>
+        <p><strong>TDS Deducted:</strong> ₹${tdsDeducted.toFixed(2)}</p>
+        <p><strong>Net Payable:</strong> ₹${netPayable.toFixed(2)}</p>
+      `;
+
+      if (!isNaN(amountReceived)) {
+        html += `<p><strong>Amount Received:</strong> ₹${amountReceived.toFixed(2)}</p>`;
+        if (Math.abs(amountReceived - netPayable) < 0.01) {
+          html += `<p class="status matched">Status: Matched ✅</p>`;
+        } else if (amountReceived < netPayable) {
+          html += `<p class="status short">Status: Short by ₹${(netPayable - amountReceived).toFixed(2)}</p>`;
+        } else {
+          html += `<p class="status excess">Status: Excess by ₹${(amountReceived - netPayable).toFixed(2)}</p>`;
+        }
+      }
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = html;
+      resultsDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
